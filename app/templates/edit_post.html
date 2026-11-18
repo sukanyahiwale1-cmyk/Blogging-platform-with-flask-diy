@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Story: {{ post.title }} | Chronicle{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            <div class="card border-0 rounded-4 shadow-sm bg-white p-4 p-md-5">
+                <div class="d-flex align-items-center justify-content-between pb-3 mb-4 border-bottom">
+                    <div>
+                        <div class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill mb-1">Editor Mode</div>
+                        <h1 class="h3 fw-bold text-dark mb-0">Edit Blog Post</h1>
+                    </div>
+                    <a href="{{ url_for('posts.post_detail', post_id=post.id) }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                        <i class="bi bi-x-lg me-1"></i> Cancel
+                    </a>
+                </div>
+
+                <form method="POST" action="{{ url_for('posts.edit_post', post_id=post.id) }}" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <!-- Title -->
+                    <div class="mb-4">
+                        <label for="{{ form.title.id }}" class="form-label fw-bold text-dark">
+                            Article Title <span class="text-danger">*</span>
+                        </label>
+                        {{ form.title(class="form-control form-control-lg bg-light border-light-subtle rounded-3 " + ("is-invalid" if form.title.errors else ""), placeholder="Article title") }}
+                        {% for error in form.title.errors %}
+                            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Category & Tags in 2 Columns -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.category.id }}" class="form-label fw-bold text-dark">
+                                Category <span class="text-danger">*</span>
+                            </label>
+                            {{ form.category(class="form-select bg-light border-light-subtle rounded-3 " + ("is-invalid" if form.category.errors else "")) }}
+                            {% for error in form.category.errors %}
+                                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.tags.id }}" class="form-label fw-bold text-dark">
+                                Tags (comma-separated)
+                            </label>
+                            {{ form.tags(class="form-control bg-light border-light-subtle rounded-3 " + ("is-invalid" if form.tags.errors else "")) }}
+                            {% for error in form.tags.errors %}
+                                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="{{ form.content.id }}" class="form-label fw-bold text-dark mb-0">
+                                Article Content <span class="text-danger">*</span>
+                            </label>
+                            <span class="text-muted text-xs" id="wordCountBadge">Calculating...</span>
+                        </div>
+                        {{ form.content(class="form-control bg-light border-light-subtle rounded-3 font-monospace-content " + ("is-invalid" if form.content.errors else ""), rows="15", id="postContentArea") }}
+                        {% for error in form.content.errors %}
+                            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                        <span class="text-muted small">
+                            Last edited: {{ post.updated_at.strftime('%b %d, %Y at %H:%M UTC') }}
+                        </span>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('posts.post_detail', post_id=post.id) }}" class="btn btn-light rounded-pill px-4">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const contentArea = document.getElementById('postContentArea');
+    const wordCountBadge = document.getElementById('wordCountBadge');
+    if (contentArea && wordCountBadge) {
+        function updateStats() {
+            const text = contentArea.value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            const minutes = Math.max(1, Math.ceil(words / 200));
+            wordCountBadge.textContent = `${words} words • ${words > 0 ? minutes : 0} min read`;
+        }
+        contentArea.addEventListener('input', updateStats);
+        updateStats();
+    }
+</script>
+{% endblock %}

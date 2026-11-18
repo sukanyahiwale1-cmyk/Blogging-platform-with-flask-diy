@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}500 Server Error | Chronicle{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-auto text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="display-1 fw-extrabold text-warning mb-2">500</div>
+            <h2 class="fw-bold text-dark mb-3">Internal Server Error</h2>
+            <p class="text-secondary mb-4">
+                Something unexpected happened on our server. The database transaction was rolled back and no corrupted data was stored.
+            </p>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-house me-1"></i> Return Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

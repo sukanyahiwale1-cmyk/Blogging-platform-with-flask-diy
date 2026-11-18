@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | Chronicle{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-auto">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="card border-0 rounded-4 shadow-lg bg-white overflow-hidden p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="brand-icon d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary mb-3" style="width: 56px; height: 56px;">
+                        <i class="bi bi-person-plus fs-3"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark mb-1">Create an Account</h2>
+                    <p class="text-secondary small">Join our community of thoughtful writers and readers</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="{{ form.username.id }}" class="form-label fw-semibold small text-dark">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
+                            {{ form.username(class="form-control border-start-0 ps-0 bg-light " + ("is-invalid" if form.username.errors else ""), placeholder="johndoe", autocomplete="username") }}
+                        </div>
+                        <div class="form-text text-muted text-xs">Letters, numbers, dots, and underscores only.</div>
+                        {% for error in form.username.errors %}
+                            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.email.id }}" class="form-label fw-semibold small text-dark">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                            {{ form.email(class="form-control border-start-0 ps-0 bg-light " + ("is-invalid" if form.email.errors else ""), placeholder="name@example.com", autocomplete="email") }}
+                        </div>
+                        {% for error in form.email.errors %}
+                            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.password.id }}" class="form-label fw-semibold small text-dark">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-shield-lock"></i></span>
+                            {{ form.password(class="form-control border-start-0 ps-0 bg-light " + ("is-invalid" if form.password.errors else ""), placeholder="At least 6 characters", autocomplete="new-password") }}
+                        </div>
+                        {% for error in form.password.errors %}
+                            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.confirm_password.id }}" class="form-label fw-semibold small text-dark">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-shield-check"></i></span>
+                            {{ form.confirm_password(class="form-control border-start-0 ps-0 bg-light " + ("is-invalid" if form.confirm_password.errors else ""), placeholder="Re-type your password", autocomplete="new-password") }}
+                        </div>
+                        {% for error in form.confirm_password.errors %}
+                            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        {{ form.submit(class="btn btn-primary btn-lg rounded-pill fw-semibold shadow-sm") }}
+                    </div>
+
+                    <div class="text-center text-secondary small">
+                        Already have an account? 
+                        <a href="{{ url_for('auth.login') }}" class="text-primary fw-semibold text-decoration-none">Sign In</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

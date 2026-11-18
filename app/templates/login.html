@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | Chronicle{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-auto">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 rounded-4 shadow-lg bg-white overflow-hidden p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="brand-icon d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary mb-3" style="width: 56px; height: 56px;">
+                        <i class="bi bi-person-lock fs-3"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark mb-1">Welcome Back</h2>
+                    <p class="text-secondary small">Enter your credentials to access your account</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next')) }}" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="{{ form.login_id.id }}" class="form-label fw-semibold small text-dark">Username or Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
+                            {{ form.login_id(class="form-control border-start-0 ps-0 bg-light " + ("is-invalid" if form.login_id.errors else ""), placeholder="name@example.com or username", autocomplete="username") }}
+                        </div>
+                        {% for error in form.login_id.errors %}
+                            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.password.id }}" class="form-label fw-semibold small text-dark">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                            {{ form.password(class="form-control border-start-0 ps-0 bg-light " + ("is-invalid" if form.password.errors else ""), placeholder="Enter your password", autocomplete="current-password") }}
+                        </div>
+                        {% for error in form.password.errors %}
+                            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            {{ form.remember_me(class="form-check-input") }}
+                            <label class="form-check-label small text-secondary" for="{{ form.remember_me.id }}">
+                                Remember me
+                            </label>
+                        </div>
+                        <span class="small text-muted">Demo: user1 / password123</span>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        {{ form.submit(class="btn btn-primary btn-lg rounded-pill fw-semibold shadow-sm") }}
+                    </div>
+
+                    <div class="text-center text-secondary small">
+                        Don't have an account yet? 
+                        <a href="{{ url_for('auth.register') }}" class="text-primary fw-semibold text-decoration-none">Sign Up Free</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

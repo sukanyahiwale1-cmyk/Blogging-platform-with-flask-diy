@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Search &amp; Filter Stories | Chronicle{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            <!-- Search Filter Bar Card -->
+            <div class="card border-0 rounded-4 shadow-sm bg-white p-4 mb-4">
+                <h1 class="h4 fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-search text-primary"></i> Search &amp; Filter Articles
+                </h1>
+
+                <form method="GET" action="{{ url_for('main.search') }}">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold text-muted">Keyword (Title or Content)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                                <input type="text" name="q" class="form-control bg-light border-start-0" placeholder="e.g. Python, API, Architecture..." value="{{ search_query }}">
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold text-muted">Category</label>
+                            <select name="category" class="form-select bg-light">
+                                <option value="">All Categories</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold text-muted">Tag</label>
+                            <input type="text" name="tag" class="form-control bg-light" placeholder="e.g. tutorial" value="{{ selected_tag }}">
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-end gap-2">
+                            <button type="submit" class="btn btn-primary rounded-pill w-100 fw-medium shadow-xs">
+                                Filter
+                            </button>
+                        </div>
+                    </div>
+
+                    {% if search_query or selected_category or selected_tag %}
+                        <div class="mt-3 pt-3 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div class="small text-muted">
+                                Active filters: 
+                                {% if search_query %}<strong>"{{ search_query }}"</strong>{% endif %}
+                                {% if selected_category %}<span class="badge bg-primary text-white rounded-pill ms-1">{{ selected_category }}</span>{% endif %}
+                                {% if selected_tag %}<span class="badge bg-info text-dark rounded-pill ms-1">#{{ selected_tag }}</span>{% endif %}
+                            </div>
+                            <a href="{{ url_for('main.search') }}" class="small text-danger text-decoration-none">
+                                <i class="bi bi-x-circle me-1"></i>Reset all filters
+                            </a>
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+
+            <!-- Results Meta Header -->
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h5 class="fw-bold text-dark mb-0">
+                    Results <span class="text-muted fw-normal">({{ pagination.total }} article{% if pagination.total != 1 %}s{% endif %} found)</span>
+                </h5>
+            </div>
+
+            <!-- Results Grid -->
+            {% if posts %}
+                <div class="row g-4">
+                    {% for post in posts %}
+                        <div class="col-md-6 d-flex">
+                            <article class="card blog-card w-100 border-0 rounded-4 shadow-sm bg-white overflow-hidden d-flex flex-column hover-translate-up">
+                                <div class="card-body p-4 d-flex flex-column">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <a href="{{ url_for('main.search', category=post.category) }}" class="badge category-badge text-decoration-none">
+                                            {{ post.category }}
+                                        </a>
+                                        <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ post.reading_time() }} min</span>
+                                    </div>
+
+                                    <h5 class="card-title fw-bold mb-2">
+                                        <a href="{{ url_for('posts.post_detail', post_id=post.id) }}" class="text-dark text-decoration-none hover-primary">
+                                            {{ post.title }}
+                                        </a>
+                                    </h5>
+
+                                    <p class="card-text text-secondary small flex-grow-1 mb-3">
+                                        {{ post.excerpt(130) }}
+                                    </p>
+
+                                    {% if post.tags %}
+                                        <div class="d-flex flex-wrap gap-1 mb-3">
+                                            {% for t in post.get_tag_list() %}
+                                                <a href="{{ url_for('main.search', tag=t) }}" class="tag-pill text-decoration-none">#{{ t }}</a>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
+                                    <hr class="my-2 border-light-subtle">
+
+                                    <div class="d-flex align-items-center justify-content-between pt-1">
+                                        <a href="{{ url_for('auth.profile', username=post.author.username) }}" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+                                            <img src="{{ post.author.avatar(32) }}" alt="{{ post.author.username }}" class="rounded-circle" width="28" height="28">
+                                            <span class="small fw-semibold">{{ post.author.username }}</span>
+                                        </a>
+                                        <span class="text-muted text-xs">{{ post.created_at.strftime('%b %d, %Y') }}</span>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if pagination.pages > 1 %}
+                    <nav class="mt-5" aria-label="Search pagination">
+                        <ul class="pagination justify-content-center gap-1">
+                            {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link rounded-pill px-3" href="{{ url_for('main.search', page=pagination.prev_num, q=search_query, category=selected_category, tag=selected_tag) }}">Prev</a>
+                                </li>
+                            {% endif %}
+                            {% for p in pagination.iter_pages() %}
+                                {% if p %}
+                                    <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                                        <a class="page-link rounded-circle px-3" href="{{ url_for('main.search', page=p, q=search_query, category=selected_category, tag=selected_tag) }}">{{ p }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled"><span class="page-link border-0">...</span></li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if pagination.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link rounded-pill px-3" href="{{ url_for('main.search', page=pagination.next_num, q=search_query, category=selected_category, tag=selected_tag) }}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+
+            {% else %}
+                <div class="card border-0 rounded-4 shadow-sm bg-white p-5 text-center">
+                    <i class="bi bi-search text-muted fs-1 mb-2 d-block"></i>
+                    <h5 class="fw-bold text-dark">No Matching Articles Found</h5>
+                    <p class="text-muted small col-md-6 mx-auto mb-4">
+                        We couldn't find any articles matching your search filters. Try using different keywords, choosing another category, or clearing filters.
+                    </p>
+                    <div>
+                        <a href="{{ url_for('main.search') }}" class="btn btn-outline-primary rounded-pill px-4 btn-sm">
+                            Clear Filters
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
